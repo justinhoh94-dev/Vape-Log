@@ -36,13 +36,15 @@ export default function ProductForm({ product, onClose }) {
       return;
     }
 
+    let productId;
     if (product?.id) {
       await updateProduct(product.id, formData);
+      productId = product.id;
     } else {
-      await addProduct(formData);
+      productId = await addProduct(formData);
     }
 
-    onClose();
+    onClose(productId);
   };
 
   const handleCannabinoidChange = (id, value) => {
@@ -73,7 +75,7 @@ export default function ProductForm({ product, onClose }) {
           <h2 className="text-xl font-semibold">
             {product ? 'Edit Product' : 'Add Product'}
           </h2>
-          <button onClick={onClose} className="text-2xl">✕</button>
+          <button onClick={() => onClose(null)} className="text-2xl">✕</button>
         </div>
 
         {/* Form */}
@@ -218,7 +220,7 @@ export default function ProductForm({ product, onClose }) {
           <div className="flex gap-3 pt-4">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => onClose(null)}
               className="flex-1 btn-secondary"
             >
               Cancel

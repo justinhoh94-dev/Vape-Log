@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useEntries, useProducts } from '../hooks/useDatabase';
 import { EFFECTS, CONSUMPTION_METHODS } from '../data/constants';
+import ProductForm from './ProductForm';
 
 export default function AddEntryModal({ entry, onClose }) {
   const { addEntry, updateEntry } = useEntries();
-  const { products } = useProducts();
+  const { products, refresh: refreshProducts } = useProducts();
+  const [showProductForm, setShowProductForm] = useState(false);
   const [formData, setFormData] = useState({
     productId: null,
     date: new Date().toISOString().slice(0, 16),
@@ -60,6 +62,14 @@ export default function AddEntryModal({ entry, onClose }) {
     }));
   };
 
+  const handleProductFormClose = async (newProductId) => {
+    setShowProductForm(false);
+    if (newProductId) {
+      await refreshProducts();
+      setFormData(prev => ({ ...prev, productId: newProductId }));
+    }
+  };
+
   const effectsByCategory = {
     positive: EFFECTS.filter(e => e.category === 'positive'),
     neutral: EFFECTS.filter(e => e.category === 'neutral'),
@@ -84,19 +94,45 @@ export default function AddEntryModal({ entry, onClose }) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Product *
             </label>
-            <select
-              value={formData.productId || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, productId: parseInt(e.target.value) }))}
-              className="input-field"
-              required
-            >
-              <option value="">Select a product</option>
-              {products.map(product => (
-                <option key={product.id} value={product.id}>
-                  {product.name}
-                </option>
-              ))}
-            </select>
+            {products.length === 0 ? (
+              <div className="space-y-2">
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+                  No products yet. Create your first product to start journaling!
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowProductForm(true)}
+                  className="w-full btn-primary flex items-center justify-center gap-2"
+                >
+                  <span>➕</span>
+                  <span>Create New Product</span>
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <select
+                  value={formData.productId || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, productId: parseInt(e.target.value) }))}
+                  className="input-field"
+                  required
+                >
+                  <option value="">Select a product</option>
+                  {products.map(product => (
+                    <option key={product.id} value={product.id}>
+                      {product.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setShowProductForm(true)}
+                  className="w-full btn-secondary text-sm flex items-center justify-center gap-2"
+                >
+                  <span>➕</span>
+                  <span>Create New Product</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Date/Time */}
@@ -266,6 +302,13 @@ export default function AddEntryModal({ entry, onClose }) {
           </div>
         </form>
       </div>
+
+      {/* Product Form Modal */}
+      {showProductForm && (
+        <ProductForm
+          onClose={handleProductFormClose}
+        />
+      )}
     </div>
   );
 }
