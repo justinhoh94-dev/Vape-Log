@@ -20,25 +20,54 @@ export const TERPENES = [
   { id: 'ocimene', name: 'Ocimene', aroma: 'Sweet, herbal', effects: ['Energizing', 'Anti-inflammatory'] }
 ];
 
-// Effects categories
+// Effects. `domain` is where you feel it (mind = cerebral, body = physical).
+// `category` drives the colour of the chip in the journal.
 export const EFFECTS = [
-  { id: 'relaxed', name: 'Relaxed', category: 'positive', icon: '😌' },
-  { id: 'euphoric', name: 'Euphoric', category: 'positive', icon: '😊' },
-  { id: 'happy', name: 'Happy', category: 'positive', icon: '😄' },
-  { id: 'uplifted', name: 'Uplifted', category: 'positive', icon: '🚀' },
-  { id: 'energetic', name: 'Energetic', category: 'positive', icon: '⚡' },
-  { id: 'focused', name: 'Focused', category: 'positive', icon: '🎯' },
-  { id: 'creative', name: 'Creative', category: 'positive', icon: '🎨' },
-  { id: 'sleepy', name: 'Sleepy', category: 'neutral', icon: '😴' },
-  { id: 'hungry', name: 'Hungry', category: 'neutral', icon: '🍕' },
-  { id: 'talkative', name: 'Talkative', category: 'positive', icon: '💬' },
-  { id: 'giggly', name: 'Giggly', category: 'positive', icon: '😂' },
-  { id: 'anxious', name: 'Anxious', category: 'negative', icon: '😰' },
-  { id: 'paranoid', name: 'Paranoid', category: 'negative', icon: '😨' },
-  { id: 'dry_mouth', name: 'Dry Mouth', category: 'negative', icon: '👄' },
-  { id: 'dry_eyes', name: 'Dry Eyes', category: 'negative', icon: '👁️' },
-  { id: 'dizzy', name: 'Dizzy', category: 'negative', icon: '😵' }
+  // Mind
+  { id: 'lucid', name: 'Lucid', domain: 'mind', category: 'positive', icon: '💡' },
+  { id: 'clear_headed', name: 'Clear-headed', domain: 'mind', category: 'positive', icon: '🧠' },
+  { id: 'focused', name: 'Focused', domain: 'mind', category: 'positive', icon: '🎯' },
+  { id: 'creative', name: 'Creative', domain: 'mind', category: 'positive', icon: '🎨' },
+  { id: 'social', name: 'Social', domain: 'mind', category: 'positive', icon: '🫂' },
+  { id: 'talkative', name: 'Talkative', domain: 'mind', category: 'positive', icon: '💬' },
+  { id: 'confident', name: 'Confident', domain: 'mind', category: 'positive', icon: '😎' },
+  { id: 'happy', name: 'Happy', domain: 'mind', category: 'positive', icon: '😄' },
+  { id: 'euphoric', name: 'Euphoric', domain: 'mind', category: 'positive', icon: '😊' },
+  { id: 'uplifted', name: 'Uplifted', domain: 'mind', category: 'positive', icon: '🚀' },
+  { id: 'giggly', name: 'Giggly', domain: 'mind', category: 'positive', icon: '😂' },
+  { id: 'self_conscious', name: 'Self-conscious', domain: 'mind', category: 'negative', icon: '😳' },
+  { id: 'anxious', name: 'Anxious', domain: 'mind', category: 'negative', icon: '😰' },
+  { id: 'paranoid', name: 'Paranoid', domain: 'mind', category: 'negative', icon: '😨' },
+  { id: 'racing_thoughts', name: 'Racing thoughts', domain: 'mind', category: 'negative', icon: '🌀' },
+  { id: 'foggy', name: 'Foggy', domain: 'mind', category: 'negative', icon: '🌫️' },
+  // Body
+  { id: 'relaxed', name: 'Relaxed', domain: 'body', category: 'positive', icon: '😌' },
+  { id: 'energetic', name: 'Energetic', domain: 'body', category: 'positive', icon: '⚡' },
+  { id: 'pain_relief', name: 'Pain relief', domain: 'body', category: 'positive', icon: '🩹' },
+  { id: 'sleepy', name: 'Sleepy', domain: 'body', category: 'neutral', icon: '😴' },
+  { id: 'hungry', name: 'Hungry', domain: 'body', category: 'neutral', icon: '🍕' },
+  { id: 'couch_lock', name: 'Couch-lock', domain: 'body', category: 'negative', icon: '🛋️' },
+  { id: 'dry_mouth', name: 'Dry mouth', domain: 'body', category: 'negative', icon: '👄' },
+  { id: 'dry_eyes', name: 'Dry eyes', domain: 'body', category: 'negative', icon: '👁️' },
+  { id: 'congestion', name: 'Clogged sinus', domain: 'body', category: 'negative', icon: '🤧' },
+  { id: 'headache', name: 'Headache', domain: 'body', category: 'negative', icon: '🤕' },
+  { id: 'rapid_heart', name: 'Racing heart', domain: 'body', category: 'negative', icon: '💓' },
+  { id: 'dizzy', name: 'Dizzy', domain: 'body', category: 'negative', icon: '😵' }
 ];
+
+// How strongly an effect was felt. Tapping an effect chip cycles through these.
+export const INTENSITY_LEVELS = [
+  { value: 1, name: 'Mild' },
+  { value: 2, name: 'Moderate' },
+  { value: 3, name: 'Strong' }
+];
+
+// Starting goal: lucid, clear thinking and social, without anxiety or physical side effects.
+// Editable from the Insights > Goal tab.
+export const DEFAULT_GOAL = {
+  want: ['lucid', 'clear_headed', 'focused', 'social', 'talkative'],
+  avoid: ['self_conscious', 'anxious', 'paranoid', 'dry_mouth', 'dry_eyes', 'congestion']
+};
 
 // Product types
 export const PRODUCT_TYPES = [

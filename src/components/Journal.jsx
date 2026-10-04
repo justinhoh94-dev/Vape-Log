@@ -138,6 +138,9 @@ export default function Journal() {
                             }`}
                           >
                             {effect.icon} {effect.name}
+                            {entry.effectIntensity?.[effectId] && (
+                              <span className="ml-1 opacity-75">{'●'.repeat(entry.effectIntensity[effectId])}</span>
+                            )}
                           </span>
                         ) : null;
                       })}

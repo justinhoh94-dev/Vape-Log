@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useEntries, useProducts } from '../hooks/useDatabase';
-import { EFFECTS, CONSUMPTION_METHODS } from '../data/constants';
+import { EFFECTS, CONSUMPTION_METHODS, INTENSITY_LEVELS } from '../data/constants';
 
 export default function AddEntryModal({ entry, onClose }) {
   const { addEntry, updateEntry } = useEntries();
@@ -10,6 +10,7 @@ export default function AddEntryModal({ entry, onClose }) {
     date: new Date().toISOString().slice(0, 16),
     rating: 3,
     effects: [],
+    effectIntensity: {},
     method: 'smoking',
     dosage: '',
     notes: ''
@@ -22,6 +23,7 @@ export default function AddEntryModal({ entry, onClose }) {
         date: entry.date ? new Date(entry.date).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16),
         rating: entry.rating || 3,
         effects: entry.effects || [],
+        effectIntensity: entry.effectIntensity || {},
         method: entry.method || 'smoking',
         dosage: entry.dosage || '',
         notes: entry.notes || ''
@@ -51,20 +53,37 @@ export default function AddEntryModal({ entry, onClose }) {
     onClose();
   };
 
-  const toggleEffect = (effectId) => {
-    setFormData(prev => ({
-      ...prev,
-      effects: prev.effects.includes(effectId)
-        ? prev.effects.filter(e => e !== effectId)
-        : [...prev.effects, effectId]
-    }));
+  // Tap cycles: off -> mild -> moderate -> strong -> off.
+  const cycleEffect = (effectId) => {
+    setFormData(prev => {
+      const current = prev.effects.includes(effectId) ? (prev.effectIntensity[effectId] ?? 2) : 0;
+      const next = current >= INTENSITY_LEVELS.length ? 0 : current + 1;
+      const effectIntensity = { ...prev.effectIntensity };
+      if (next) {
+        effectIntensity[effectId] = next;
+      } else {
+        delete effectIntensity[effectId];
+      }
+      return {
+        ...prev,
+        effects: next
+          ? [...new Set([...prev.effects, effectId])]
+          : prev.effects.filter(e => e !== effectId),
+        effectIntensity
+      };
+    });
   };
 
-  const effectsByCategory = {
-    positive: EFFECTS.filter(e => e.category === 'positive'),
-    neutral: EFFECTS.filter(e => e.category === 'neutral'),
-    negative: EFFECTS.filter(e => e.category === 'negative')
+  const chipStyles = {
+    positive: ['bg-green-100 text-green-700', 'bg-green-600 text-white'],
+    neutral: ['bg-gray-100 text-gray-700', 'bg-gray-600 text-white'],
+    negative: ['bg-red-100 text-red-700', 'bg-red-600 text-white']
   };
+
+  const effectGroups = [
+    { title: 'Head (cerebral)', effects: EFFECTS.filter(e => e.domain === 'mind') },
+    { title: 'Body (physical)', effects: EFFECTS.filter(e => e.domain === 'body') }
+  ];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center">
@@ -166,72 +185,41 @@ export default function AddEntryModal({ entry, onClose }) {
 
           {/* Effects */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Effects
             </label>
+            <p className="text-xs text-gray-500 mb-2">
+              Tap to log an effect; tap again for stronger (mild → moderate → strong → off).
+            </p>
 
-            {/* Positive Effects */}
-            <div className="mb-3">
-              <div className="text-xs text-green-600 font-medium mb-1">Positive</div>
-              <div className="flex flex-wrap gap-2">
-                {effectsByCategory.positive.map(effect => (
-                  <button
-                    key={effect.id}
-                    type="button"
-                    onClick={() => toggleEffect(effect.id)}
-                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                      formData.effects.includes(effect.id)
-                        ? 'bg-green-600 text-white'
-                        : 'bg-green-100 text-green-700'
-                    }`}
-                  >
-                    {effect.icon} {effect.name}
-                  </button>
-                ))}
+            {effectGroups.map(group => (
+              <div key={group.title} className="mb-3">
+                <div className="text-xs text-gray-600 font-medium mb-1">{group.title}</div>
+                <div className="flex flex-wrap gap-2">
+                  {group.effects.map(effect => {
+                    const selected = formData.effects.includes(effect.id);
+                    const intensity = selected ? (formData.effectIntensity[effect.id] ?? 2) : 0;
+                    return (
+                      <button
+                        key={effect.id}
+                        type="button"
+                        onClick={() => cycleEffect(effect.id)}
+                        className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                          chipStyles[effect.category][selected ? 1 : 0]
+                        }`}
+                      >
+                        {effect.icon} {effect.name}
+                        {selected && (
+                          <span className="ml-1 text-xs opacity-90">
+                            {'●'.repeat(intensity)}{'○'.repeat(INTENSITY_LEVELS.length - intensity)}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-
-            {/* Neutral Effects */}
-            <div className="mb-3">
-              <div className="text-xs text-gray-600 font-medium mb-1">Neutral</div>
-              <div className="flex flex-wrap gap-2">
-                {effectsByCategory.neutral.map(effect => (
-                  <button
-                    key={effect.id}
-                    type="button"
-                    onClick={() => toggleEffect(effect.id)}
-                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                      formData.effects.includes(effect.id)
-                        ? 'bg-gray-600 text-white'
-                        : 'bg-gray-100 text-gray-700'
-                    }`}
-                  >
-                    {effect.icon} {effect.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Negative Effects */}
-            <div className="mb-3">
-              <div className="text-xs text-red-600 font-medium mb-1">Negative</div>
-              <div className="flex flex-wrap gap-2">
-                {effectsByCategory.negative.map(effect => (
-                  <button
-                    key={effect.id}
-                    type="button"
-                    onClick={() => toggleEffect(effect.id)}
-                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                      formData.effects.includes(effect.id)
-                        ? 'bg-red-600 text-white'
-                        : 'bg-red-100 text-red-700'
-                    }`}
-                  >
-                    {effect.icon} {effect.name}
-                  </button>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Notes */}
